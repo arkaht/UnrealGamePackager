@@ -2,7 +2,7 @@
 
 #include <filesystem>
 
-#include "mini/ini.h"
+#include "simpleini/SimpleIni.h"
 
 using String = std::string;
 using FilePath = std::filesystem::path;
@@ -10,25 +10,23 @@ using FilePath = std::filesystem::path;
 class BuildSettings
 {
 public:
-	BuildSettings( const mINI::INIStructure& Ini )
-		: Ini( Ini )
-	{}
+	BuildSettings( const std::string& FileName );
 
-	String Get( const String& Section, const String& Key );
+	String Get( const String& Section, const String& Key ) const;
 	String GetOrSet( const String& Section, const String& Key, const String& DefaultValue );
-	String GetBuildSetting( const String& Key );
+	String GetBuildSetting( const String& Key ) const;
 
-	String GetProjectName();
-	String GetPlatform();
+	String GetProjectName() const;
+	String GetPlatform() const;
 
 	FilePath GetUnrealAutomationToolPath();
 	FilePath GetUnrealCommandExecutablePath();
-	FilePath GetArchiveDirectoryPath();
-	FilePath GetProjectDirectoryPath();
-	FilePath GetUProjectPath();
-	FilePath GetGameConfigPath();
+	FilePath GetArchiveDirectoryPath() const;
+	FilePath GetProjectDirectoryPath() const;
+	FilePath GetUProjectPath() const;
+	FilePath GetGameConfigPath() const;
 
-	bool ShouldSaveIni() const;
+	void SaveIfNeeded();
 
 public:
 	const FilePath UnrealAutomationToolRelativePath = "Engine/Build/BatchFiles/RunUAT.bat";
@@ -37,6 +35,7 @@ public:
 	const FilePath GameConfigRelativePath = "Config/DefaultGame.ini";
 
 public:
-	mINI::INIStructure Ini {};
+	CSimpleIniA Ini {};
+	std::string FileName {};
 	bool bShouldSaveIni = false;
 };

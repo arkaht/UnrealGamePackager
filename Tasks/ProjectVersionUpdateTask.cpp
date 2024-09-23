@@ -3,8 +3,6 @@
 #include <regex>
 #include <chrono>
 
-#include "mini/ini.h"
-
 const std::string SECTION = "TaskSettings.ProjectVersionUpdateSettings";
 
 bool ProjectVersionUpdateTask::Initialize( BuildSettings& BuildSettings )
@@ -17,16 +15,24 @@ void ProjectVersionUpdateTask::Run( BuildSettings& BuildSettings )
 {
 	// Parse DefaultGame.ini file
     String GameConfigPath = BuildSettings.GetGameConfigPath().string();
-	mINI::INIFile GameIniFile( GameConfigPath );
-	mINI::INIStructure GameIniData {};
-	if ( !GameIniFile.read( GameIniData ) )
+
+	CSimpleIniA GameIni;
+	GameIni.SetSpaces( false );
+	GameIni.SetMultiKey( true );
+
+	auto ErrorStatus = GameIni.LoadFile( GameConfigPath.c_str() );
+	if ( ErrorStatus < 0 )
 	{
-		printf( "Failed to read file '%s'!\n", GameConfigPath.c_str() );
+		// TODO: Uniformize log messages
+		printf( "GamePackager: Failed to read file '%s'!\n", GameConfigPath.c_str() );
 		return;
 	}
 
 	// Retrieve project version
-	std::string& ProjectVersion = GameIniData["/Script/EngineSettings.GeneralProjectSettings"]["ProjectVersion"];
+	std::string ProjectVersion = GameIni.GetValue( 
+		"/Script/EngineSettings.GeneralProjectSettings", 
+		"ProjectVersion"
+	);
 
 	// Split version
 	const std::regex REGEX_VERSION( "(\\w+)(\\d+).(\\d+).(\\d+)" );
@@ -51,7 +57,14 @@ void ProjectVersionUpdateTask::Run( BuildSettings& BuildSettings )
 	);
 
 	// Override changes
-	GameIniFile.write( GameIniData, true );
+	GameIni.SetValue(
+		"/Script/EngineSettings.GeneralProjectSettings",
+		"ProjectVersion",
+		ProjectVersion.c_str()
+	);
+	GameIni.SaveFile( GameConfigPath.c_str(), true );
+
+	printf("");
 }
 
 TaskRunTime ProjectVersionUpdateTask::GetRunTime() const

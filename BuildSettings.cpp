@@ -1,15 +1,50 @@
 #include "BuildSettings.hpp"
 
-String BuildSettings::Get( const String& Section, const String& Key )
+BuildSettings::BuildSettings( const std::string& FileName )
+	: FileName( FileName )
 {
-	return Ini[Section][Key];
+	// Load settings from file
+	auto ErrorStatus = Ini.LoadFile( FileName.c_str() );
+	if ( ErrorStatus == SI_OK ) return;
+	if ( ErrorStatus < 0 )
+	{
+		printf(
+			"GamePackager: Error when loading the build settings, error status! %d\n",
+			ErrorStatus
+		);
+		return;
+	}
+
+	// Construct default settings
+	Ini.SetValue( "BuildSettings", "ProjectName", "ProjectName" );
+	Ini.SetValue( "BuildSettings", "UnrealEngineDirectoryPath", "C:/" );
+	Ini.SetValue( "BuildSettings", "ArchiveDirectoryPath", "C:/" );
+	Ini.SetValue( "BuildSettings", "ProjectDirectoryPath", "C:/" );
+	Ini.SetValue( "BuildSettings", "Platform", "Win64" );
+	Ini.SetValue( "BuildSettings", "CookedMaps", "" );
+
+	// Generate settings file
+	Ini.SaveFile( FileName.c_str() );
+
+	// Print info to user
+	FilePath ExecutableDirectoryPath = std::filesystem::current_path();
+	FilePath SettingsPath = ExecutableDirectoryPath / FileName;
+	printf( "GamePackager: Created a default settings file at '%s'\n", SettingsPath.string().c_str() );
+}
+
+String BuildSettings::Get( const String& Section, const String& Key ) const
+{
+	const char* Value = Ini.GetValue( Section.c_str(), Key.c_str() );
+	if ( Value == nullptr ) return "";
+	return Value;
 }
 
 String BuildSettings::GetOrSet( const String& Section, const String& Key, const String& DefaultValue )
 {
-	if ( !Ini[Section].has( Key ) )
+	auto Value = Get( Section.c_str(), Key.c_str() );
+	if ( Value.empty() )
 	{
-		Ini[Section][Key] = DefaultValue;
+		Ini.SetValue( Section.c_str(), Key.c_str(), DefaultValue.c_str() );
 		bShouldSaveIni = true;
 		return DefaultValue;
 	}
@@ -17,17 +52,17 @@ String BuildSettings::GetOrSet( const String& Section, const String& Key, const 
 	return Get( Section, Key );
 }
 
-String BuildSettings::GetBuildSetting( const String& Key )
+String BuildSettings::GetBuildSetting( const String& Key ) const
 {
-	return Ini["BuildSettings"][Key];
+	return Get( "BuildSettings", Key );
 }
 
-String BuildSettings::GetProjectName()
+String BuildSettings::GetProjectName() const
 {
 	return GetBuildSetting( "ProjectName" );
 }
 
-String BuildSettings::GetPlatform()
+String BuildSettings::GetPlatform() const
 {
 	return GetBuildSetting( "Platform" );
 }
@@ -44,27 +79,30 @@ FilePath BuildSettings::GetUnrealCommandExecutablePath()
 	return UnrealEngineDirectoryPath / UnrealCommandExecutableRelativePath;
 }
 
-FilePath BuildSettings::GetArchiveDirectoryPath()
+FilePath BuildSettings::GetArchiveDirectoryPath() const
 {
 	return GetBuildSetting( "ArchiveDirectoryPath" );
 }
 
-FilePath BuildSettings::GetProjectDirectoryPath()
+FilePath BuildSettings::GetProjectDirectoryPath() const
 {
 	return GetBuildSetting( "ProjectDirectoryPath" );
 }
 
-FilePath BuildSettings::GetUProjectPath()
+FilePath BuildSettings::GetUProjectPath() const
 {
 	return ( GetProjectDirectoryPath() / GetProjectName() ).replace_extension( ".uproject" );
 }
 
-FilePath BuildSettings::GetGameConfigPath()
+FilePath BuildSettings::GetGameConfigPath() const
 {
 	return GetProjectDirectoryPath() / GameConfigRelativePath;
 }
 
-bool BuildSettings::ShouldSaveIni() const
+void BuildSettings::SaveIfNeeded()
 {
-	return bShouldSaveIni;
+	if ( !bShouldSaveIni ) return;
+
+	Ini.SaveFile( FileName.c_str() );
+	printf( "GamePackager: Saved the settings file to add new values\n" );
 }

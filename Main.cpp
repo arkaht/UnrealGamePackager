@@ -12,36 +12,7 @@ using UniquePtr = std::unique_ptr<T>;
 template<typename T>
 using Vector = std::vector<T>;
 
-const String SETTINGS_FILE_NAME = "GamePackagerSettings.ini";
-
-BuildSettings ConstructBuildSettings()
-{
-	mINI::INIFile SettingsFile( SETTINGS_FILE_NAME );
-
-	mINI::INIStructure SettingsIni {};
-	if ( !SettingsFile.read( SettingsIni ) )
-	{
-		// Construct default build settings
-		auto& BuildSettingsSection = SettingsIni["BuildSettings"];
-		BuildSettingsSection["ProjectName"] = "ProjectName";
-		BuildSettingsSection["UnrealEngineDirectoryPath"] = "C:/";
-		BuildSettingsSection["ArchiveDirectoryPath"] = "C:/";
-		BuildSettingsSection["ProjectDirectoryPath"] = "C:/";
-		BuildSettingsSection["Platform"] = "Win64";
-		BuildSettingsSection["CookedMaps"] = "";
-
-		// Generate settings file
-		SettingsFile.generate( SettingsIni, false );
-
-		FilePath ExecutableDirectoryPath = std::filesystem::current_path();
-		FilePath SettingsPath = ExecutableDirectoryPath / SETTINGS_FILE_NAME;
-		printf( "GamePackager: Created a default settings file at '%s'\n", SettingsPath.string().c_str() );
-	}
-
-	// Construct build settings out of the structure
-	BuildSettings BuildSettings( SettingsIni );
-	return BuildSettings;
-}
+constexpr auto SETTINGS_FILE_NAME = "GamePackagerSettings.ini";
 
 int main()
 {
@@ -50,7 +21,7 @@ int main()
 	Tasks.push_back( std::make_unique<ProjectVersionUpdateTask>() );
 	Tasks.push_back( std::make_unique<ZipBuildTask>() );
 
-	BuildSettings BuildSettings = ConstructBuildSettings();
+	BuildSettings BuildSettings( SETTINGS_FILE_NAME );
 
 	// Initialize the automation commands
 	for ( auto& Task : Tasks )
@@ -131,12 +102,7 @@ int main()
 		}
 	}
 	
-	// TODO: Move this in the class
-	if ( BuildSettings.ShouldSaveIni() )
-	{
-		mINI::INIFile SettingsFile( SETTINGS_FILE_NAME );
-		SettingsFile.write( BuildSettings.Ini, false );
-	}
+	BuildSettings.SaveIfNeeded();
 
 	printf( "GamePackager: Should Exit? " );
 	int Temp = 0;
