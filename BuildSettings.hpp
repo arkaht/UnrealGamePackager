@@ -35,4 +35,5 @@ struct BuildSettings
 	{
 		return ProjectDirectoryPath / GameConfigRelativePath;
 	}
+	mINI::INIStructure Ini {};
 };

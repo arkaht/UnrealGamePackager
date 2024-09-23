@@ -24,9 +24,10 @@ BuildSettings ConstructBuildSettings()
 		auto& BuildSettingsSection = SettingsIni["BuildSettings"];
 		BuildSettingsSection["ProjectName"] = "ProjectName";
 		BuildSettingsSection["UnrealEngineDirectoryPath"] = "C:/";
-		BuildSettingsSection["ArchiveDirectoryPath"] = "";
-		BuildSettingsSection["ProjectDirectoryPath"] = "";
+		BuildSettingsSection["ArchiveDirectoryPath"] = "C:/";
+		BuildSettingsSection["ProjectDirectoryPath"] = "C:/";
 		BuildSettingsSection["Platform"] = "Win64";
+		BuildSettingsSection["CookedMaps"] = "";
 
 		// Generate settings file
 		SettingsFile.generate( SettingsIni, false );
@@ -39,10 +40,11 @@ BuildSettings ConstructBuildSettings()
 	// Construct build settings out of the structure
 	BuildSettings BuildSettings {};
 	BuildSettings.ProjectName = SettingsIni["BuildSettings"]["ProjectName"];
-	BuildSettings.UnrealEngineDirectoryPath = "C:/Program Files/Epic Games/UE_5.4/";
-	BuildSettings.ArchiveDirectoryPath = "C:/Users/arthu/OneDrive/Documents/Unreal Projects/MetroXHunter/Build";
-	BuildSettings.ProjectDirectoryPath = "C:/Users/arthu/OneDrive/Documents/Unreal Projects/MetroXHunter/";
+	BuildSettings.UnrealEngineDirectoryPath = SettingsIni["BuildSettings"]["UnrealEngineDirectoryPath"];
+	BuildSettings.ArchiveDirectoryPath = SettingsIni["BuildSettings"]["ArchiveDirectoryPath"];
+	BuildSettings.ProjectDirectoryPath = SettingsIni["BuildSettings"]["ProjectDirectoryPath"];
 	BuildSettings.Platform = SettingsIni["BuildSettings"]["Platform"];
+	BuildSettings.Ini = SettingsIni;
 
 	return BuildSettings;
 }
@@ -91,16 +93,25 @@ int main()
 		//"-map=?+?",
 	};
 
+	// Add map-content cooking only
+	std::string CookedMaps = BuildSettings.Ini["BuildSettings"]["CookedMaps"];
+	if ( !CookedMaps.empty() )
+	{
+		CommandArguments.push_back( "-map=" + CookedMaps );
+		printf( "GamePackager: Added map cooking command argument\n" );
+	}
+
+	// Constructing command line
 	std::string CommandLine = "";
 	for ( std::string Argument : CommandArguments )
 	{
 		CommandLine += Argument + " ";
 	}
 
-	printf( "Command Line: %s\n", CommandLine.c_str() );
+	printf( "GamePackager: Command Line: %s\n", CommandLine.c_str() );
 
 	bool bShouldBuild = false;
-	printf( "Do you want to build? " );
+	printf( "GamePackager: Do you want to build? " );
 	std::cin >> bShouldBuild;
 	if ( bShouldBuild )
 	{
@@ -113,9 +124,9 @@ int main()
 		}
 
 		// Run build command
-		printf( "Running build command...\n" );
+		printf( "GamePackager: Running build command...\n" );
 		int Status = system( CommandLine.c_str() );
-		printf( "Build command finished with status: %d.\n", Status );
+		printf( "GamePackager: Build command finished with status: %d.\n", Status );
 
 		// Run the PostBuild automation commands
 		for ( auto& Task : Tasks )
@@ -126,7 +137,7 @@ int main()
 		}
 	}
 
-	printf( "Exit? " );
+	printf( "GamePackager: Should Exit? " );
 	int Temp = 0;
 	std::cin >> Temp;
 }
