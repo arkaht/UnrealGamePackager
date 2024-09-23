@@ -21,13 +21,13 @@ bool ProjectVersionUpdateTask::Initialize( BuildSettings& BuildSettings )
 
 void ProjectVersionUpdateTask::Run( BuildSettings& BuildSettings )
 {
-	// Parse DefaultGame.ini file
-	String GameConfigPath = BuildSettings.GetGameConfigPath().string();
-
-	CSimpleIniA GameIni;
+	// Initialize ini structure
+	CSimpleIniA GameIni {};
 	GameIni.SetSpaces( false );
 	GameIni.SetMultiKey( true );
 
+	// Parse DefaultGame.ini file
+	String GameConfigPath = BuildSettings.GetGameConfigPath().string();
 	auto ErrorStatus = GameIni.LoadFile( GameConfigPath.c_str() );
 	if ( ErrorStatus < 0 )
 	{

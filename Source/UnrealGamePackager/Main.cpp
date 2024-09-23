@@ -16,19 +16,20 @@ constexpr auto SETTINGS_FILE_NAME = "GamePackagerSettings.ini";
 
 int main()
 {
-	// Create all the automation commands
+	// Create all the tasks
 	Vector<UniquePtr<Task>> Tasks {};
 	Tasks.push_back( std::make_unique<ProjectVersionUpdateTask>() );
 	Tasks.push_back( std::make_unique<ZipBuildTask>() );
 
 	BuildSettings BuildSettings( SETTINGS_FILE_NAME );
 
-	// Initialize the automation commands
+	// Initialize the tasks
 	for ( auto& Task : Tasks )
 	{
 		Task->bCanRun = Task->Initialize( BuildSettings );
 	}
 
+	// Assemble all build options
 	std::vector<std::string> CommandArguments {
 		"C: && ",
 		"\"" + BuildSettings.GetUnrealAutomationToolPath().string() + "\"",
@@ -73,10 +74,13 @@ int main()
 
 	printf( "GamePackager: Command Line: %s\n", CommandLine.c_str() );
 
-	bool bShouldBuild = BuildSettings.GetOrSet( "UnrealGamePackagerSettings", "bBuildEnabled", "0" ) == "1";
+	bool bShouldBuild = BuildSettings.GetOrSet( 
+		"UnrealGamePackagerSettings", 
+		"bBuildEnabled", "0" 
+	) == "1";
 	if ( bShouldBuild )
 	{
-		// Run the PreBuild automation commands
+		// Run the PreBuild tasks
 		for ( auto& Task : Tasks )
 		{
 			if ( !Task->bCanRun ) continue;
@@ -90,7 +94,7 @@ int main()
 		int Status = system( CommandLine.c_str() );
 		printf( "GamePackager: Build command finished with status: %d.\n", Status );
 
-		// Run the PostBuild automation commands
+		// Run the PostBuild tasks
 		for ( auto& Task : Tasks )
 		{
 			if ( !Task->bCanRun ) continue;

@@ -11,7 +11,10 @@ bool ZipBuildTask::Initialize( BuildSettings& BuildSettings )
 {
 	auto IsEnabled = BuildSettings.GetOrSet( SECTION, "bIsEnabled", "1" );
 	TimestampFormat = BuildSettings.GetOrSet( SECTION, "TiemstampFormat", "{:%Y%m%d-%H:%M}" );
-	ZipFileNameFormat = BuildSettings.GetOrSet( SECTION, "ZipFileNameFormat", "{ProjectName}_{Platform}_{Timestamp}.zip" );
+	ZipFileNameFormat = BuildSettings.GetOrSet( 
+		SECTION, 
+		"ZipFileNameFormat", "{ProjectName}_{Platform}_{ClientConfig}_{Timestamp}.zip" 
+	);
 	BuildFolderName = BuildSettings.GetOrSet( SECTION, "BuildFolderName", "Windows" );
 	return IsEnabled == "1";
 }
