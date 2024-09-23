@@ -129,15 +129,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BuildSettings.cpp" />
     <ClCompile Include="Tasks\ProjectVersionUpdateTask.cpp" />
     <ClCompile Include="Tasks\ZipBuildTask.cpp" />
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Tasks\Task.h" />
-    <ClInclude Include="Tasks\ProjectVersionUpdateTask.h" />
+    <ClInclude Include="Tasks\Task.hpp" />
+    <ClInclude Include="Tasks\ProjectVersionUpdateTask.hpp" />
     <ClInclude Include="BuildSettings.hpp" />
-    <ClInclude Include="Tasks\ZipBuildTask.h" />
+    <ClInclude Include="Tasks\ZipBuildTask.hpp" />
     <ClInclude Include="mini\ini.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -1,20 +1,22 @@
-#include "ZipBuildTask.h"
+#include "ZipBuildTask.hpp"
 
 #include <string>
 #include <stdlib.h>
 
-void ZipBuildTask::Initialize( const BuildSettings& BuildSettings )
+bool ZipBuildTask::Initialize( BuildSettings& BuildSettings )
 {
+	return true;
 }
 
-void ZipBuildTask::Run( const BuildSettings& BuildSettings )
+void ZipBuildTask::Run( BuildSettings& BuildSettings )
 {
 	printf( "Zipping build directory...\n" );
 
-	String DriveName = BuildSettings.ArchiveDirectoryPath.root_name().string();
+	FilePath ArchiveDirectoryPath = BuildSettings.GetArchiveDirectoryPath();
+	String DriveName = ArchiveDirectoryPath.root_name().string();
 
 	String Command = DriveName + " && "
-		+ "cd " + BuildSettings.ArchiveDirectoryPath.string() + " && "
+		+ "cd " + ArchiveDirectoryPath.string() + " && "
 		+ "tar -c -f Build.zip Windows";
 
 	int Status = system( Command.c_str() );

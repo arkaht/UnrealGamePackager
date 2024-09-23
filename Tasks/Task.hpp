@@ -2,8 +2,6 @@
 
 #include <cstdint>
 
-#include "mini/ini.h"
-
 #include "BuildSettings.hpp"
 
 enum class TaskRunTime : std::uint8_t
@@ -15,8 +13,11 @@ enum class TaskRunTime : std::uint8_t
 class Task
 {
 public:
-	virtual void Initialize( const BuildSettings& BuildSettings ) = 0;
-	virtual void Run( const BuildSettings& BuildSettings ) = 0;
+	virtual bool Initialize( BuildSettings& BuildSettings ) = 0;
+	virtual void Run( BuildSettings& BuildSettings ) = 0;
 
 	virtual TaskRunTime GetRunTime() const = 0;
+
+public:
+	bool bCanRun = true;
 };

@@ -1,15 +1,19 @@
-#include "ProjectVersionUpdateTask.h"
+#include "ProjectVersionUpdateTask.hpp"
 
 #include <regex>
 #include <chrono>
 
 #include "mini/ini.h"
 
-void ProjectVersionUpdateTask::Initialize( const BuildSettings& BuildSettings )
+const std::string SECTION = "TaskSettings.ProjectVersionUpdateSettings";
+
+bool ProjectVersionUpdateTask::Initialize( BuildSettings& BuildSettings )
 {
+	auto IsEnabled = BuildSettings.GetOrSet( SECTION, "bIsEnabled", "1" );
+	return IsEnabled == "1";
 }
 
-void ProjectVersionUpdateTask::Run( const BuildSettings& BuildSettings )
+void ProjectVersionUpdateTask::Run( BuildSettings& BuildSettings )
 {
 	// Parse DefaultGame.ini file
     String GameConfigPath = BuildSettings.GetGameConfigPath().string();

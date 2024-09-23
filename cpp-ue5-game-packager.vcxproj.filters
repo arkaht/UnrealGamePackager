@@ -24,21 +24,24 @@
     <ClCompile Include="Tasks\ProjectVersionUpdateTask.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="BuildSettings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mini\ini.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Tasks\Task.h">
+    <ClInclude Include="Tasks\Task.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Tasks\ZipBuildTask.h">
+    <ClInclude Include="Tasks\ZipBuildTask.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BuildSettings.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Tasks\ProjectVersionUpdateTask.h">
+    <ClInclude Include="Tasks\ProjectVersionUpdateTask.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

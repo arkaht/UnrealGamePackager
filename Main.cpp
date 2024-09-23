@@ -4,18 +4,19 @@
 #include <array>
 
 #include "BuildSettings.hpp"
-#include "Tasks/ZipBuildTask.h"
-#include "Tasks/ProjectVersionUpdateTask.h"
+#include "Tasks/ZipBuildTask.hpp"
+#include "Tasks/ProjectVersionUpdateTask.hpp"
 
 template<typename T>
 using UniquePtr = std::unique_ptr<T>;
 template<typename T>
 using Vector = std::vector<T>;
 
+const String SETTINGS_FILE_NAME = "GamePackagerSettings.ini";
+
 BuildSettings ConstructBuildSettings()
 {
-	String SettingsFileName = "GamePackagerSettings.ini";
-	mINI::INIFile SettingsFile( SettingsFileName );
+	mINI::INIFile SettingsFile( SETTINGS_FILE_NAME );
 
 	mINI::INIStructure SettingsIni {};
 	if ( !SettingsFile.read( SettingsIni ) )
@@ -33,19 +34,12 @@ BuildSettings ConstructBuildSettings()
 		SettingsFile.generate( SettingsIni, false );
 
 		FilePath ExecutableDirectoryPath = std::filesystem::current_path();
-		FilePath SettingsPath = ExecutableDirectoryPath / SettingsFileName;
+		FilePath SettingsPath = ExecutableDirectoryPath / SETTINGS_FILE_NAME;
 		printf( "GamePackager: Created a default settings file at '%s'\n", SettingsPath.string().c_str() );
 	}
 
 	// Construct build settings out of the structure
-	BuildSettings BuildSettings {};
-	BuildSettings.ProjectName = SettingsIni["BuildSettings"]["ProjectName"];
-	BuildSettings.UnrealEngineDirectoryPath = SettingsIni["BuildSettings"]["UnrealEngineDirectoryPath"];
-	BuildSettings.ArchiveDirectoryPath = SettingsIni["BuildSettings"]["ArchiveDirectoryPath"];
-	BuildSettings.ProjectDirectoryPath = SettingsIni["BuildSettings"]["ProjectDirectoryPath"];
-	BuildSettings.Platform = SettingsIni["BuildSettings"]["Platform"];
-	BuildSettings.Ini = SettingsIni;
-
+	BuildSettings BuildSettings( SettingsIni );
 	return BuildSettings;
 }
 
@@ -61,7 +55,7 @@ int main()
 	// Initialize the automation commands
 	for ( auto& Task : Tasks )
 	{
-		Task->Initialize( BuildSettings );
+		Task->bCanRun = Task->Initialize( BuildSettings );
 	}
 
 	std::vector<std::string> CommandArguments {
@@ -74,9 +68,9 @@ int main()
 		"-skipbuildeditor",
 		"-cook",
 		"-project=\"" + BuildSettings.GetUProjectPath().string() + "\"",
-		"-target=" + BuildSettings.ProjectName,
+		"-target=" + BuildSettings.GetProjectName(),
 		"-unrealexe=\"" + BuildSettings.GetUnrealCommandExecutablePath().string() + "\"",
-		"-platform=" + BuildSettings.Platform,
+		"-platform=" + BuildSettings.GetPlatform(),
 		"-installed",
 		"-stage",
 		"-archive",
@@ -87,14 +81,12 @@ int main()
 		"-compressed",
 		"-prereqs",
 		"-applocaldirectory=$(EngineDir)/Binaries/ThirdParty/AppLocalDependencies",
-		"-archivedirectory=\"" + BuildSettings.ArchiveDirectoryPath.string() + "\"",
+		"-archivedirectory=\"" + BuildSettings.GetArchiveDirectoryPath().string() + "\"",
 		"-clientconfig=Development",
-		// TODO: Add map-content cooking only
-		//"-map=?+?",
 	};
 
 	// Add map-content cooking only
-	std::string CookedMaps = BuildSettings.Ini["BuildSettings"]["CookedMaps"];
+	std::string CookedMaps = BuildSettings.GetBuildSetting( "CookedMaps" );
 	if ( !CookedMaps.empty() )
 	{
 		CommandArguments.push_back( "-map=" + CookedMaps );
@@ -118,6 +110,7 @@ int main()
 		// Run the PreBuild automation commands
 		for ( auto& Task : Tasks )
 		{
+			if ( !Task->bCanRun ) continue;
 			if ( Task->GetRunTime() != TaskRunTime::PreBuild ) continue;
 
 			Task->Run( BuildSettings );
@@ -131,10 +124,18 @@ int main()
 		// Run the PostBuild automation commands
 		for ( auto& Task : Tasks )
 		{
+			if ( !Task->bCanRun ) continue;
 			if ( Task->GetRunTime() != TaskRunTime::PostBuild ) continue;
 
 			Task->Run( BuildSettings );
 		}
+	}
+	
+	// TODO: Move this in the class
+	if ( BuildSettings.ShouldSaveIni() )
+	{
+		mINI::INIFile SettingsFile( SETTINGS_FILE_NAME );
+		SettingsFile.write( BuildSettings.Ini, false );
 	}
 
 	printf( "GamePackager: Should Exit? " );
