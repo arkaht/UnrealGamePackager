@@ -9,4 +9,9 @@ public:
 	void Run( BuildSettings& BuildSettings ) override;
 
 	virtual TaskRunTime GetRunTime() const override;
+
+private:
+	String TimestampFormat {};
+	String ZipFileNameFormat {};
+	String BuildFolderName {};
 };

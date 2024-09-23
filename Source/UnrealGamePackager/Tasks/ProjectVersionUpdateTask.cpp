@@ -11,6 +11,11 @@ const std::string SECTION = "TaskSettings.ProjectVersionUpdateSettings";
 bool ProjectVersionUpdateTask::Initialize( BuildSettings& BuildSettings )
 {
 	auto IsEnabled = BuildSettings.GetOrSet( SECTION, "bIsEnabled", "1" );
+	TimestampFormat = BuildSettings.GetOrSet( SECTION, "TimestampFormat", "{:%Y%m%d}" );
+	ProjectVersionFormat = BuildSettings.GetOrSet( 
+		SECTION, 
+		"ProjectVersionFormat", "{Prefix}{Major}.{Minor}.{Timestamp}"
+	);
 	return IsEnabled == "1";
 }
 
@@ -50,14 +55,9 @@ void ProjectVersionUpdateTask::Run( BuildSettings& BuildSettings )
 	// Get current timestamp
 	auto CurrentDate = std::chrono::system_clock::now();
 
-	String ProjectVersionFormat = BuildSettings.GetOrSet(
-		SECTION,
-		"ProjectVersionFormat", "{Prefix}{Major}.{Minor}.{Timestamp}"
-	);
-
 	// Construct new project version
 	String FormattedTimestamp = std::vformat(
-		"{:" + BuildSettings.GetOrSet( SECTION, "TimestampFormat", "%Y%m%d" ) + "}",
+		TimestampFormat,
 		std::make_format_args( CurrentDate )
 	);
 	ProjectVersion = fmt::format(

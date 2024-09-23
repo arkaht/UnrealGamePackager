@@ -18,11 +18,13 @@ BuildSettings::BuildSettings( const std::string& FileName )
 	}
 
 	// Construct default settings
+	// TODO: Find a uniform and convenient way to declare default values
 	Ini.SetValue( "BuildSettings", "ProjectName", "ProjectName" );
 	Ini.SetValue( "BuildSettings", "UnrealEngineDirectoryPath", "C:/" );
 	Ini.SetValue( "BuildSettings", "ArchiveDirectoryPath", "C:/" );
 	Ini.SetValue( "BuildSettings", "ProjectDirectoryPath", "C:/" );
 	Ini.SetValue( "BuildSettings", "Platform", "Win64" );
+	Ini.SetValue( "BuildSettings", "ClientConfig", "Development" );
 	Ini.SetValue( "BuildSettings", "CookedMaps", "" );
 
 	// Generate settings file

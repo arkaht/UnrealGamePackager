@@ -9,4 +9,8 @@ public:
 	void Run( BuildSettings& BuildSettings ) override;
 	
 	TaskRunTime GetRunTime() const override;
+
+private:
+	String TimestampFormat {};
+	String ProjectVersionFormat {};
 };

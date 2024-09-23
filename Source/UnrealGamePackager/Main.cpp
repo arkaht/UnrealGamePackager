@@ -53,7 +53,7 @@ int main()
 		"-prereqs",
 		"-applocaldirectory=$(EngineDir)/Binaries/ThirdParty/AppLocalDependencies",
 		"-archivedirectory=\"" + BuildSettings.GetArchiveDirectoryPath().string() + "\"",
-		"-clientconfig=Development",
+		"-clientconfig=" + BuildSettings.GetBuildSetting( "ClientConfig" ),
 	};
 
 	// Add map-content cooking only
@@ -73,9 +73,7 @@ int main()
 
 	printf( "GamePackager: Command Line: %s\n", CommandLine.c_str() );
 
-	bool bShouldBuild = false;
-	printf( "GamePackager: Do you want to build? " );
-	std::cin >> bShouldBuild;
+	bool bShouldBuild = BuildSettings.GetOrSet( "UnrealGamePackagerSettings", "bBuildEnabled", "0" ) == "1";
 	if ( bShouldBuild )
 	{
 		// Run the PreBuild automation commands
@@ -100,6 +98,11 @@ int main()
 
 			Task->Run( BuildSettings );
 		}
+	}
+	else
+	{
+		printf( "GamePackager: Configure your settings file '%s'.\n", SETTINGS_FILE_NAME );
+		printf( "GamePackager: Set 'bBuildEnabled' to '1' to process a build.\n" );
 	}
 	
 	BuildSettings.SaveIfNeeded();
