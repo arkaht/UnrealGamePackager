@@ -3,9 +3,9 @@
 #include <filesystem>
 #include <array>
 
-#include "BuildSettings.hpp"
-#include "Tasks/ZipBuildTask.hpp"
-#include "Tasks/ProjectVersionUpdateTask.hpp"
+#include "UnrealGamePackager/BuildSettings.hpp"
+#include "UnrealGamePackager/Tasks/ZipBuildTask.hpp"
+#include "UnrealGamePackager/Tasks/ProjectVersionUpdateTask.hpp"
 
 template<typename T>
 using UniquePtr = std::unique_ptr<T>;

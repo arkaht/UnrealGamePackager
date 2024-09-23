@@ -1,5 +1,8 @@
 #include "ProjectVersionUpdateTask.hpp"
 
+#include "fmt/format.h"
+#include "fmt/args.h"
+
 #include <regex>
 #include <chrono>
 
@@ -14,7 +17,7 @@ bool ProjectVersionUpdateTask::Initialize( BuildSettings& BuildSettings )
 void ProjectVersionUpdateTask::Run( BuildSettings& BuildSettings )
 {
 	// Parse DefaultGame.ini file
-    String GameConfigPath = BuildSettings.GetGameConfigPath().string();
+	String GameConfigPath = BuildSettings.GetGameConfigPath().string();
 
 	CSimpleIniA GameIni;
 	GameIni.SetSpaces( false );
@@ -47,27 +50,39 @@ void ProjectVersionUpdateTask::Run( BuildSettings& BuildSettings )
 	// Get current timestamp
 	auto CurrentDate = std::chrono::system_clock::now();
 
+	String ProjectVersionFormat = BuildSettings.GetOrSet(
+		SECTION,
+		"ProjectVersionFormat", "{Prefix}{Major}.{Minor}.{Timestamp}"
+	);
+
 	// Construct new project version
-	ProjectVersion = std::format(
-		"{0}{1}.{2}.{3}", 
-		ProjectVersionPrefix,
-		ProjectMajorVersion,
-		ProjectMinorVersion,
-		std::format( "{:%Y%m%d}", CurrentDate )
+	String FormattedTimestamp = std::vformat(
+		"{:" + BuildSettings.GetOrSet( SECTION, "TimestampFormat", "%Y%m%d" ) + "}",
+		std::make_format_args( CurrentDate )
+	);
+	ProjectVersion = fmt::format(
+		fmt::runtime( ProjectVersionFormat ),
+		fmt::arg( "Prefix", ProjectVersionPrefix ),
+		fmt::arg( "Major", ProjectMajorVersion ),
+		fmt::arg( "Minor", ProjectMinorVersion ),
+		fmt::arg( "Patch", ProjectMinorVersion ),
+		fmt::arg( "Timestamp", FormattedTimestamp )
 	);
 
 	// Override changes
 	GameIni.SetValue(
 		"/Script/EngineSettings.GeneralProjectSettings",
 		"ProjectVersion",
-		ProjectVersion.c_str()
+		ProjectVersion.c_str(),
+		nullptr,
+		// NOTE: We must set bForceReplace to true to override the key instead of adding it
+		//		 as the multikey option is enabled.
+		/* bForceReplace */ true
 	);
 	GameIni.SaveFile( GameConfigPath.c_str(), true );
-
-	printf("");
 }
 
 TaskRunTime ProjectVersionUpdateTask::GetRunTime() const
 {
-    return TaskRunTime::PreBuild;
+	return TaskRunTime::PreBuild;
 }

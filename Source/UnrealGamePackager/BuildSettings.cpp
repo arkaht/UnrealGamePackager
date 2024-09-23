@@ -3,10 +3,12 @@
 BuildSettings::BuildSettings( const std::string& FileName )
 	: FileName( FileName )
 {
+	Ini.SetSpaces( false );
+
 	// Load settings from file
 	auto ErrorStatus = Ini.LoadFile( FileName.c_str() );
 	if ( ErrorStatus == SI_OK ) return;
-	if ( ErrorStatus < 0 )
+	if ( ErrorStatus != SI_FILE )
 	{
 		printf(
 			"GamePackager: Error when loading the build settings, error status! %d\n",

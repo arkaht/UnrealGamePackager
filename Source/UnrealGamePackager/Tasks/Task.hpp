@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-#include "BuildSettings.hpp"
+#include "UnrealGamePackager/BuildSettings.hpp"
 
 enum class TaskRunTime : std::uint8_t
 {
