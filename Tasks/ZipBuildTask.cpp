@@ -1,13 +1,13 @@
-#include "ZipBuildAutomationCommand.h"
+#include "ZipBuildTask.h"
 
 #include <string>
 #include <stdlib.h>
 
-void ZipBuildAutomationCommand::Initialize( const BuildSettings& BuildSettings )
+void ZipBuildTask::Initialize( const BuildSettings& BuildSettings )
 {
 }
 
-void ZipBuildAutomationCommand::Run( const BuildSettings& BuildSettings )
+void ZipBuildTask::Run( const BuildSettings& BuildSettings )
 {
 	printf( "Zipping build directory...\n" );
 
@@ -21,7 +21,7 @@ void ZipBuildAutomationCommand::Run( const BuildSettings& BuildSettings )
 	printf( "Zipping command finished with status: %d.\n", Status );
 }
 
-AutomationCommandRunTime ZipBuildAutomationCommand::GetRunTime() const
+TaskRunTime ZipBuildTask::GetRunTime() const
 {
-	return AutomationCommandRunTime::PostBuild;
+	return TaskRunTime::PostBuild;
 }

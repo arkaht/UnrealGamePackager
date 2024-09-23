@@ -18,10 +18,10 @@
     <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AutomationCommands\ZipBuildAutomationCommand.cpp">
+    <ClCompile Include="Tasks\ZipBuildTask.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AutomationCommands\ProjectVersionUpdateAutomationCommand.cpp">
+    <ClCompile Include="Tasks\ProjectVersionUpdateTask.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -29,16 +29,16 @@
     <ClInclude Include="mini\ini.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="AutomationCommands\AutomationCommand.h">
+    <ClInclude Include="Tasks\Task.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="AutomationCommands\ZipBuildAutomationCommand.h">
+    <ClInclude Include="Tasks\ZipBuildTask.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BuildSettings.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="AutomationCommands\ProjectVersionUpdateAutomationCommand.h">
+    <ClInclude Include="Tasks\ProjectVersionUpdateTask.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

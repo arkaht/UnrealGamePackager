@@ -6,17 +6,17 @@
 
 #include "BuildSettings.hpp"
 
-enum class AutomationCommandRunTime : std::uint8_t
+enum class TaskRunTime : std::uint8_t
 {
 	PreBuild,
 	PostBuild,
 };
 
-class AutomationCommand
+class Task
 {
 public:
 	virtual void Initialize( const BuildSettings& BuildSettings ) = 0;
 	virtual void Run( const BuildSettings& BuildSettings ) = 0;
 
-	virtual AutomationCommandRunTime GetRunTime() const = 0;
+	virtual TaskRunTime GetRunTime() const = 0;
 };

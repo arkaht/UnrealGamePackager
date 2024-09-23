@@ -1,15 +1,15 @@
-#include "ProjectVersionUpdateAutomationCommand.h"
+#include "ProjectVersionUpdateTask.h"
 
 #include <regex>
 #include <chrono>
 
 #include "mini/ini.h"
 
-void ProjectVersionUpdateAutomationCommand::Initialize( const BuildSettings& BuildSettings )
+void ProjectVersionUpdateTask::Initialize( const BuildSettings& BuildSettings )
 {
 }
 
-void ProjectVersionUpdateAutomationCommand::Run( const BuildSettings& BuildSettings )
+void ProjectVersionUpdateTask::Run( const BuildSettings& BuildSettings )
 {
 	// Parse DefaultGame.ini file
     String GameConfigPath = BuildSettings.GetGameConfigPath().string();
@@ -50,7 +50,7 @@ void ProjectVersionUpdateAutomationCommand::Run( const BuildSettings& BuildSetti
 	GameIniFile.write( GameIniData, true );
 }
 
-AutomationCommandRunTime ProjectVersionUpdateAutomationCommand::GetRunTime() const
+TaskRunTime ProjectVersionUpdateTask::GetRunTime() const
 {
-    return AutomationCommandRunTime::PreBuild;
+    return TaskRunTime::PreBuild;
 }

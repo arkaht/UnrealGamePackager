@@ -4,8 +4,8 @@
 #include <array>
 
 #include "BuildSettings.hpp"
-#include "AutomationCommands/ZipBuildAutomationCommand.h"
-#include "AutomationCommands/ProjectVersionUpdateAutomationCommand.h"
+#include "Tasks/ZipBuildTask.h"
+#include "Tasks/ProjectVersionUpdateTask.h"
 
 template<typename T>
 using UniquePtr = std::unique_ptr<T>;
@@ -50,16 +50,16 @@ BuildSettings ConstructBuildSettings()
 int main()
 {
 	// Create all the automation commands
-	Vector<UniquePtr<AutomationCommand>> AutomationCommands {};
-	AutomationCommands.push_back( std::make_unique<ProjectVersionUpdateAutomationCommand>() );
-	AutomationCommands.push_back( std::make_unique<ZipBuildAutomationCommand>() );
+	Vector<UniquePtr<Task>> Tasks {};
+	Tasks.push_back( std::make_unique<ProjectVersionUpdateTask>() );
+	Tasks.push_back( std::make_unique<ZipBuildTask>() );
 
 	BuildSettings BuildSettings = ConstructBuildSettings();
 
 	// Initialize the automation commands
-	for ( auto& AutomationCommand : AutomationCommands )
+	for ( auto& Task : Tasks )
 	{
-		AutomationCommand->Initialize( BuildSettings );
+		Task->Initialize( BuildSettings );
 	}
 
 	std::vector<std::string> CommandArguments {
@@ -105,11 +105,11 @@ int main()
 	if ( bShouldBuild )
 	{
 		// Run the PreBuild automation commands
-		for ( auto& AutomationCommand : AutomationCommands )
+		for ( auto& Task : Tasks )
 		{
-			if ( AutomationCommand->GetRunTime() != AutomationCommandRunTime::PreBuild ) continue;
+			if ( Task->GetRunTime() != TaskRunTime::PreBuild ) continue;
 
-			AutomationCommand->Run( BuildSettings );
+			Task->Run( BuildSettings );
 		}
 
 		// Run build command
@@ -118,11 +118,11 @@ int main()
 		printf( "Build command finished with status: %d.\n", Status );
 
 		// Run the PostBuild automation commands
-		for ( auto& AutomationCommand : AutomationCommands )
+		for ( auto& Task : Tasks )
 		{
-			if ( AutomationCommand->GetRunTime() != AutomationCommandRunTime::PostBuild ) continue;
+			if ( Task->GetRunTime() != TaskRunTime::PostBuild ) continue;
 
-			AutomationCommand->Run( BuildSettings );
+			Task->Run( BuildSettings );
 		}
 	}
 
