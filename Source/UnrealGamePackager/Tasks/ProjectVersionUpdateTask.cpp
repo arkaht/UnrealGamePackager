@@ -80,6 +80,8 @@ void ProjectVersionUpdateTask::Run( BuildSettings& BuildSettings )
 		/* bForceReplace */ true
 	);
 	GameIni.SaveFile( GameConfigPath.c_str(), true );
+
+	fmt::print( "GamePackager.ProjectVersionUpdateTask: Set 'ProjectVersion={0}'.\n", ProjectVersion );
 }
 
 TaskRunTime ProjectVersionUpdateTask::GetRunTime() const

@@ -3,6 +3,9 @@
 #include <filesystem>
 #include <array>
 
+#include "fmt/format.h"
+#include "fmt/color.h"
+
 #include "UnrealGamePackager/BuildSettings.hpp"
 #include "UnrealGamePackager/Tasks/ZipBuildTask.hpp"
 #include "UnrealGamePackager/Tasks/ProjectVersionUpdateTask.hpp"
@@ -81,6 +84,7 @@ int main()
 	if ( bShouldBuild )
 	{
 		// Run the PreBuild tasks
+		fmt::print( fmt::fg( fmt::color::gold ), "GamePackager: Running PreBuild tasks...\n" );
 		for ( auto& Task : Tasks )
 		{
 			if ( !Task->bCanRun ) continue;
@@ -90,11 +94,19 @@ int main()
 		}
 
 		// Run build command
-		printf( "GamePackager: Running build command...\n" );
+		fmt::print(
+			fmt::fg( fmt::color::gold ),
+			"GamePackager: Running build command...\n"
+		);
 		int Status = system( CommandLine.c_str() );
-		printf( "GamePackager: Build command finished with status: %d.\n", Status );
+		fmt::print(
+			fmt::fg( Status == 0 ? fmt::color::green : fmt::color::red ),
+			"GamePackager: Build command finished with status: {0}.\n",
+			Status
+		);
 
 		// Run the PostBuild tasks
+		fmt::print( fmt::fg( fmt::color::gold ), "GamePackager: Running PostBuild tasks...\n" );
 		for ( auto& Task : Tasks )
 		{
 			if ( !Task->bCanRun ) continue;
@@ -102,11 +114,20 @@ int main()
 
 			Task->Run( BuildSettings );
 		}
+
+		fmt::print( fmt::fg( fmt::color::gold ), "GamePackager: Build process finished.\n" );
 	}
 	else
 	{
-		printf( "GamePackager: Configure your settings file '%s'.\n", SETTINGS_FILE_NAME );
-		printf( "GamePackager: Set 'bBuildEnabled' to '1' to process a build.\n" );
+		fmt::print(
+			fmt::fg( fmt::color::gold ),
+			"GamePackager: Configure your settings file '{0}'.\n",
+			SETTINGS_FILE_NAME
+		);
+		fmt::print(
+			fmt::fg( fmt::color::gold ),
+			"GamePackager: Set 'bBuildEnabled' to '1' to process a build.\n"
+		);
 	}
 	
 	BuildSettings.SaveIfNeeded();

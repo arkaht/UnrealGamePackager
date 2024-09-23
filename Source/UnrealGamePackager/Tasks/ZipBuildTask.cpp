@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 #include "fmt/format.h"
+#include "fmt/color.h"
 
 const std::string SECTION = "TaskSettings.ZipBuildSettings";
 
@@ -21,7 +22,7 @@ bool ZipBuildTask::Initialize( BuildSettings& BuildSettings )
 
 void ZipBuildTask::Run( BuildSettings& BuildSettings )
 {
-	printf( "Zipping build directory...\n" );
+	fmt::print( "GamePackager.ZipBuildTask: Running zip command...\n" );
 
 	FilePath ArchiveDirectoryPath = BuildSettings.GetArchiveDirectoryPath();
 	String DriveName = ArchiveDirectoryPath.root_name().string();
@@ -49,7 +50,11 @@ void ZipBuildTask::Run( BuildSettings& BuildSettings )
 		+ "tar -c -f \"" + FormattedZipFileName + "\" " + NewFolderName;
 
 	int Status = system( Command.c_str() );
-	printf( "Zipping command finished with status: %d.\n", Status );
+	fmt::print(
+		fmt::fg( Status == 0 ? fmt::color::green : fmt::color::red ),
+		"GamePackager.ZipBuildTask: Zip command finished with status: {0}.\n",
+		Status
+	);
 }
 
 TaskRunTime ZipBuildTask::GetRunTime() const
