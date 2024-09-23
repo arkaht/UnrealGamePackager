@@ -28,3 +28,6 @@ target_link_libraries(UGP PRIVATE fmt::fmt)
 
 # Add libs
 target_include_directories(UGP PUBLIC "Libraries/simpleini-4.22/include")
+
+# Setup install rules
+install(TARGETS UGP DESTINATION "Binaries")
