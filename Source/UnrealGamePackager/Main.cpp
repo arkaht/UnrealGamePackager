@@ -19,6 +19,14 @@ constexpr auto SETTINGS_FILE_NAME = "GamePackagerSettings.ini";
 
 int main()
 {
+#ifdef WIN32
+	// Enable color support on the Windows console
+	HANDLE Handle = GetStdHandle( STD_OUTPUT_HANDLE );
+	DWORD Mode = 0;
+	GetConsoleMode( Handle, &Mode );
+	SetConsoleMode( Handle, Mode | ENABLE_VIRTUAL_TERMINAL_PROCESSING );
+#endif
+
 	// Create all the tasks
 	Vector<UniquePtr<Task>> Tasks {};
 	Tasks.push_back( std::make_unique<ProjectVersionUpdateTask>() );
