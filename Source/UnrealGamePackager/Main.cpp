@@ -66,6 +66,8 @@ int main()
 		"-applocaldirectory=$(EngineDir)/Binaries/ThirdParty/AppLocalDependencies",
 		"-archivedirectory=\"" + BuildSettings.GetArchiveDirectoryPath().string() + "\"",
 		"-clientconfig=" + BuildSettings.GetBuildSetting( "ClientConfig" ),
+		// "-nocompile",
+		// "-nocompileuat",
 	};
 
 	// Add map-content cooking only
@@ -73,7 +75,12 @@ int main()
 	if ( !CookedMaps.empty() )
 	{
 		CommandArguments.push_back( "-map=" + CookedMaps );
-		printf( "GamePackager: Added map cooking command argument\n" );
+		fmt::print( "GamePackager: Added specified maps to retrieve the content to cook from.\n" );
+		fmt::print(
+			fmt::fg( fmt::color::gold ),
+			"GamePackager: If you have missing content in your builds, consider using "
+			"'Additional Asset Directories to Cook' option in 'Project Settings'.\n"
+		);
 	}
 
 	// Constructing command line
