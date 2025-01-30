@@ -10,8 +10,8 @@ const std::string SECTION = "TaskSettings.ZipBuildSettings";
 
 bool ZipBuildTask::Initialize( BuildSettings& BuildSettings )
 {
-	auto IsEnabled = BuildSettings.GetOrSet( SECTION, "bIsEnabled", "1" );
-	TimestampFormat = BuildSettings.GetOrSet( SECTION, "TiemstampFormat", "{:%Y%m%d-%H:%M}" );
+	const String IsEnabled = BuildSettings.GetOrSet( SECTION, "bIsEnabled", "1" );
+	TimestampFormat = BuildSettings.GetOrSet( SECTION, "TimestampFormat", "{:%Y%m%d-%H:%M}" );
 	ZipFileNameFormat = BuildSettings.GetOrSet( 
 		SECTION, 
 		"ZipFileNameFormat", "{ProjectName}_{Platform}_{ClientConfig}_{Timestamp}.zip" 
@@ -49,7 +49,7 @@ void ZipBuildTask::Run( BuildSettings& BuildSettings )
 		// Zip build folder
 		+ "tar -c -f \"" + FormattedZipFileName + "\" " + NewFolderName;
 
-	int Status = system( Command.c_str() );
+	const int Status = system( Command.c_str() );
 	fmt::print(
 		fmt::fg( Status == 0 ? fmt::color::green : fmt::color::red ),
 		"GamePackager.ZipBuildTask: Zip command finished with status: {0}.\n",

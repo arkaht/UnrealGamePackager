@@ -2,11 +2,12 @@
 
 #include "fmt/format.h"
 #include "fmt/args.h"
+#include "fmt/color.h"
 
 #include <regex>
 #include <chrono>
 
-const std::string SECTION = "TaskSettings.ProjectVersionUpdateSettings";
+const String SECTION = "TaskSettings.ProjectVersionUpdateSettings";
 
 bool ProjectVersionUpdateTask::Initialize( BuildSettings& BuildSettings )
 {
@@ -37,7 +38,7 @@ void ProjectVersionUpdateTask::Run( BuildSettings& BuildSettings )
 	}
 
 	// Retrieve project version
-	std::string ProjectVersion = GameIni.GetValue( 
+	String ProjectVersion = GameIni.GetValue( 
 		"/Script/EngineSettings.GeneralProjectSettings", 
 		"ProjectVersion"
 	);
@@ -47,16 +48,16 @@ void ProjectVersionUpdateTask::Run( BuildSettings& BuildSettings )
 	std::smatch ProjectVersionMatch;
 	std::regex_search( ProjectVersion, ProjectVersionMatch, REGEX_VERSION );
 
-	std::string ProjectVersionPrefix = ProjectVersionMatch[1];
-	std::string ProjectMajorVersion = ProjectVersionMatch[2];
-	std::string ProjectMinorVersion = ProjectVersionMatch[3];
-	[[maybe_unused]] std::string ProjectPatchVersion = ProjectVersionMatch[4];
+	const String ProjectVersionPrefix = ProjectVersionMatch[1];
+	const String ProjectMajorVersion = ProjectVersionMatch[2];
+	const String ProjectMinorVersion = ProjectVersionMatch[3];
+	[[maybe_unused]] const String ProjectPatchVersion = ProjectVersionMatch[4];
 
 	// Get current timestamp
 	auto CurrentDate = std::chrono::system_clock::now();
 
 	// Construct new project version
-	String FormattedTimestamp = std::vformat(
+	const String FormattedTimestamp = std::vformat(
 		TimestampFormat,
 		std::make_format_args( CurrentDate )
 	);
@@ -79,9 +80,39 @@ void ProjectVersionUpdateTask::Run( BuildSettings& BuildSettings )
 		//		 as the multikey option is enabled.
 		/* bForceReplace */ true
 	);
-	GameIni.SaveFile( GameConfigPath.c_str(), true );
 
-	fmt::print( "GamePackager.ProjectVersionUpdateTask: Set 'ProjectVersion={0}'.\n", ProjectVersion );
+	const SI_Error SaveStatus = GameIni.SaveFile( GameConfigPath.c_str(), true );
+	if ( SaveStatus < 0 )
+	{
+		switch ( SaveStatus )
+		{
+			case SI_FAIL:
+				fmt::print(
+					fmt::fg( fmt::color::red ),
+					"GamePackager.ProjectVersionUpdateTask: Failed to set 'ProjectVersion={0}': generic failure.\n",
+					ProjectVersion
+				);
+				break;
+			case SI_NOMEM:
+				fmt::print(
+					fmt::fg( fmt::color::red ),
+					"GamePackager.ProjectVersionUpdateTask: Failed to set 'ProjectVersion={0}': out-of-memory.\n",
+					ProjectVersion
+				);
+				break;
+			case SI_FILE:
+				fmt::print(
+					fmt::fg( fmt::color::red ),
+					"GamePackager.ProjectVersionUpdateTask: Failed to set 'ProjectVersion={0}': file error.\n",
+					ProjectVersion
+				);
+				break;
+		}
+	}
+	else
+	{
+		fmt::print( "GamePackager.ProjectVersionUpdateTask: Set 'ProjectVersion={0}'.\n", ProjectVersion );
+	}
 }
 
 TaskRunTime ProjectVersionUpdateTask::GetRunTime() const

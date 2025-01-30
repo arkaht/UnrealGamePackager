@@ -92,7 +92,7 @@ int main()
 
 	printf( "GamePackager: Command Line: %s\n", CommandLine.c_str() );
 
-	bool bShouldBuild = BuildSettings.GetOrSet( 
+	const bool bShouldBuild = BuildSettings.GetOrSet( 
 		"UnrealGamePackagerSettings", 
 		"bBuildEnabled", "0" 
 	) == "1";
